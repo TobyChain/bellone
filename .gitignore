@@ -6,3 +6,5 @@ data/
 .DS_Store
 
 release/
+build/icon.iconset/
+build/icon_1024.png

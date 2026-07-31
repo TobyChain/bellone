@@ -54,7 +54,15 @@
     ],
     "mac": {
       "category": "public.app-category.healthcare-fitness",
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "dmg": {
+      "title": "壹铃 Bellone",
+      "contents": [
+        { "x": 140, "y": 200, "type": "file" },
+        { "x": 400, "y": 200, "type": "link", "path": "/Applications" }
+      ]
     },
     "directories": {
       "output": "release"
