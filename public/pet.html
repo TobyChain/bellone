@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>belly</title>
+  <style>
+    :root { color-scheme: light dark; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    /* 整窗默认穿透，只有 #belly-wrap 交互 */
+    body { pointer-events: none; }
+    #belly-wrap {
+      pointer-events: auto;
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .belly-bubble {
+      pointer-events: none;
+      max-width: 190px;
+      background: #fff;
+      color: #1d1d1f;
+      border: 1px solid #e5e5ea;
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      padding: 8px 12px;
+      font: 12px/1.5 -apple-system, "PingFang SC", sans-serif;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    @media (prefers-color-scheme: dark) {
+      .belly-bubble { background: #2c2c2e; color: #f5f5f7; border-color: #3a3a3c; }
+    }
+    .belly {
+      border: none; background: transparent; padding: 0;
+      width: 56px; height: 64px; cursor: grab;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.22));
+    }
+    .belly:active { cursor: grabbing; }
+    .belly svg { overflow: visible; display: block; width: 56px; height: 64px; }
+  </style>
+  <link rel="stylesheet" href="pet.css" />
+</head>
+<body>
+  <div id="belly-wrap">
+    <div id="belly-bubble" class="belly-bubble" hidden></div>
+    <button type="button" id="belly" class="belly idle" aria-label="belly 玲玲">
+      <svg viewBox="0 0 64 64">
+        <g class="belly-body">
+          <ellipse class="belly-shadow" cx="32" cy="59" rx="14" ry="3" fill="rgba(0,0,0,0.15)"/>
+          <circle cx="32" cy="8" r="3.2" fill="#e8a33d"/>
+          <path class="bell-shell" d="M32 10 C18 10 14 24 14 36 C14 44 10 47 9 49 L55 49 C54 47 50 44 50 36 C50 24 46 10 32 10 Z" fill="#f6c453" stroke="#e8a33d" stroke-width="2"/>
+          <path d="M22 16 C18 20 17 27 17 32" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <g class="belly-eyes">
+            <circle class="eye" cx="25" cy="32" r="2.6" fill="#4a3319"/>
+            <circle class="eye" cx="39" cy="32" r="2.6" fill="#4a3319"/>
+          </g>
+          <path class="belly-mouth" d="M28 39 Q32 42 36 39" stroke="#4a3319" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle class="belly-blush" cx="20" cy="37" r="2.4" fill="rgba(255,120,100,0.35)"/>
+          <circle class="belly-blush" cx="44" cy="37" r="2.4" fill="rgba(255,120,100,0.35)"/>
+          <circle class="belly-clapper" cx="32" cy="53" r="4" fill="#e8a33d"/>
+        </g>
+        <g class="belly-thinking" opacity="0">
+          <circle cx="24" cy="2.5" r="1.6" fill="#86868b"/>
+          <circle cx="31" cy="1.8" r="1.9" fill="#86868b"/>
+          <circle cx="38" cy="2.5" r="1.6" fill="#86868b"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+  <script src="pet.js"></script>
+</body>
+</html>

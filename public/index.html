@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>壹铃 Bellone</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0a84ff" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">🔔</div>
+        <div>
+          <div class="brand-name">壹铃</div>
+          <div class="brand-sub">Bellone · 和平地工作</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-page="today">🏠 今日</button>
+        <button class="nav-item" data-page="report">📊 周报</button>
+        <button class="nav-item" data-page="settings">⚙️ 设置</button>
+      </nav>
+
+      <div class="side-section">
+        <div class="side-title">今日数据</div>
+        <div class="side-stats">
+          <div class="side-stat"><span id="s-checkins">0</span><label>打卡</label></div>
+          <div class="side-stat"><span id="s-points">0</span><label>健康值</label></div>
+          <div class="side-stat"><span id="s-streak">0</span><label>连续天</label></div>
+        </div>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">快捷操作</div>
+        <button class="side-btn" id="btn-dnd">🔕 免打扰 60 分钟</button>
+        <button class="side-btn" id="btn-dnd-off" hidden>🔔 关闭免打扰</button>
+      </div>
+
+      <div class="side-footer">
+        <div id="quiet-badge" class="badge">…</div>
+        <div class="about">用不同的铃声，提醒你喝水、起身、远眺，<br/>也提醒你停下过久的工作。</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- 今日 -->
+      <section class="page active" id="page-today">
+        <h1>今日节律</h1>
+        <p class="subtitle" id="today-sub">壹铃正在守护你的工作节奏</p>
+        <div class="theme-grid" id="theme-grid"></div>
+        <div class="card">
+          <h2>今日打卡记录</h2>
+          <div id="today-log" class="log"></div>
+        </div>
+      </section>
+
+      <!-- 周报 -->
+      <section class="page" id="page-report">
+        <h1>健康周报</h1>
+        <p class="subtitle" id="report-range"></p>
+        <div class="metric-grid" id="metric-grid"></div>
+        <div class="card">
+          <h2>各主题完成情况</h2>
+          <div id="report-themes"></div>
+        </div>
+        <div class="card insight-card">
+          <h2>一句话解读</h2>
+          <p id="report-insight"></p>
+        </div>
+      </section>
+
+      <!-- 设置 -->
+      <section class="page" id="page-settings">
+        <h1>设置</h1>
+        <p class="subtitle">简单配置，开盒即用</p>
+        <div class="card">
+          <h2>提醒时段</h2>
+          <div class="form-row"><label>开始</label><input type="time" id="set-workStart" /></div>
+          <div class="form-row"><label>结束</label><input type="time" id="set-workEnd" /></div>
+          <div class="form-row"><label>午休开始</label><input type="time" id="set-lunchStart" /></div>
+          <div class="form-row"><label>午休结束</label><input type="time" id="set-lunchEnd" /></div>
+          <div class="form-row"><label>工作日</label>
+            <div class="daypick" id="set-days"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>提醒频率与动作</h2>
+          <div class="form-row">
+            <label>提醒频率</label>
+            <input type="number" min="5" max="480" id="set-interval" />
+            <span class="muted">分钟（所有动作共用，到点轮流提醒）</span>
+          </div>
+          <div id="set-themes"></div>
+          <p class="muted">配置了 AI 后，belly 会根据你的响应情况自动微调频率；没配 AI 时会在此基础上小幅随机。</p>
+        </div>
+        <div class="card">
+          <h2>铃声</h2>
+          <div class="form-row">
+            <label>提醒响铃</label>
+            <label class="switch"><input type="checkbox" id="set-sound" /><span class="slider"></span></label>
+          </div>
+          <p class="muted">每个主题有专属铃声：喝水是清泉双音，起身是上行三音，远眺是悠长单音，拉伸是轻快琶音。</p>
+        </div>
+        <div class="card">
+          <h2>AI 助手（belly · 玲玲）</h2>
+          <div class="form-row"><label>Base URL</label><input type="text" id="set-llm-baseUrl" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" /></div>
+          <div class="form-row"><label>API Key</label><input type="password" id="set-llm-apiKey" placeholder="sk-…" autocomplete="off" /></div>
+          <div class="form-row"><label>模型</label><input type="text" id="set-llm-model" placeholder="qwen-plus" /></div>
+          <div class="form-row">
+            <label></label>
+            <button type="button" id="btn-llm-test" class="chip">测试连接</button>
+            <span id="llm-test-result" class="muted"></span>
+          </div>
+          <p class="muted">任意 OpenAI 兼容接口（DashScope / OpenAI / Ollama）。保存后立即生效，无需重启。</p>
+        </div>
+        <div class="card">
+          <h2>noteone 笔记（MCP）</h2>
+          <div class="form-row"><label>状态</label><span id="noteone-status" class="muted">…</span></div>
+          <div class="form-row">
+            <label>启用</label>
+            <label class="switch"><input type="checkbox" id="set-noteone" /><span class="slider"></span></label>
+          </div>
+          <p class="muted">检测到本机 noteone（壹识）时自动接入，belly 可帮你记笔记、搜笔记。</p>
+        </div>
+        <div class="save-bar">
+          <button id="btn-save" class="primary">保存设置</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- belly 宠物助手 -->
+  <div id="belly-panel" class="belly-panel" hidden>
+    <div class="belly-panel-head">
+      <span>🔔 belly · 玲玲</span>
+      <button type="button" id="belly-close" aria-label="关闭">×</button>
+    </div>
+    <div id="chat-messages" class="chat-messages">
+      <div class="msg assistant">你好呀，我是玲玲 🔔 打卡、调节律、看数据，或者让我帮你记笔记，都可以直接说～</div>
+    </div>
+    <div id="llm-hint" class="hint" hidden>⚠️ 尚未配置 AI 模型，去「设置 → AI 助手」填写即可，保存立即生效。</div>
+    <form id="chat-form" class="chat-input">
+      <input id="chat-text" type="text" placeholder="和玲玲说点什么…" autocomplete="off" />
+      <button type="submit">发送</button>
+    </form>
+  </div>
+  <div id="belly-wrap">
+    <div id="belly-bubble" class="belly-bubble" hidden></div>
+    <button type="button" id="belly" class="belly idle" aria-label="belly 玲玲">
+      <svg viewBox="0 0 64 64" width="64" height="64">
+        <g class="belly-body">
+          <ellipse class="belly-shadow" cx="32" cy="59" rx="14" ry="3" fill="rgba(0,0,0,0.15)"/>
+          <circle cx="32" cy="8" r="3.2" fill="#e8a33d"/>
+          <path class="bell-shell" d="M32 10 C18 10 14 24 14 36 C14 44 10 47 9 49 L55 49 C54 47 50 44 50 36 C50 24 46 10 32 10 Z" fill="#f6c453" stroke="#e8a33d" stroke-width="2"/>
+          <path d="M22 16 C18 20 17 27 17 32" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <g class="belly-eyes">
+            <circle class="eye" cx="25" cy="32" r="2.6" fill="#4a3319"/>
+            <circle class="eye" cx="39" cy="32" r="2.6" fill="#4a3319"/>
+          </g>
+          <path class="belly-mouth" d="M28 39 Q32 42 36 39" stroke="#4a3319" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle class="belly-blush" cx="20" cy="37" r="2.4" fill="rgba(255,120,100,0.35)"/>
+          <circle class="belly-blush" cx="44" cy="37" r="2.4" fill="rgba(255,120,100,0.35)"/>
+          <circle class="belly-clapper" cx="32" cy="53" r="4" fill="#e8a33d"/>
+        </g>
+        <g class="belly-thinking" opacity="0">
+          <circle cx="24" cy="2.5" r="1.6" fill="#86868b"/>
+          <circle cx="31" cy="1.8" r="1.9" fill="#86868b"/>
+          <circle cx="38" cy="2.5" r="1.6" fill="#86868b"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+
+  <!-- 提醒卡片 -->
+  <div id="toast-wrap"></div>
+  <div id="mini-toast" class="mini-toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
