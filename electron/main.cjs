@@ -166,6 +166,36 @@ function fetchStatus() {
   });
 }
 
+/** 订阅服务端 SSE 的 pet 事件，实时显示/隐藏桌宠窗（设置页开关触发） */
+function subscribePetEvents() {
+  const req = http.get({ host: "127.0.0.1", port: serverPort, path: "/api/events" }, (res) => {
+    let buf = "";
+    let event = "";
+    res.on("data", (chunk) => {
+      buf += chunk.toString();
+      let nl;
+      while ((nl = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (line.startsWith("event:")) event = line.slice(6).trim();
+        else if (line.startsWith("data:")) {
+          const payload = line.slice(5).trim();
+          if (event === "pet") {
+            try {
+              const { hidden } = JSON.parse(payload);
+              if (hidden) { if (petWin) { petWin.close(); petWin = null; } }
+              else if (!petWin) createPetWindow();
+            } catch {}
+          }
+          event = "";
+        }
+      }
+    });
+    res.on("end", () => setTimeout(subscribePetEvents, 3000));
+  });
+  req.on("error", () => setTimeout(subscribePetEvents, 3000));
+}
+
 function buildAppMenu() {
   const template = [
     ...(process.platform === "darwin" ? [{ role: "appMenu" }] : []),
@@ -196,6 +226,7 @@ app.whenReady().then(async () => {
   createMainWindow();
   const status = await fetchStatus();
   if (!status?.settings?.petHidden) createPetWindow();
+  subscribePetEvents();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {

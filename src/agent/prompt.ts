@@ -18,7 +18,7 @@ export function buildSystemPrompt(opts: { noteoneConnected?: boolean } = {}): st
   const themeLines = (Object.keys(store.settings.themes) as ThemeKey[])
     .map((t) => {
       const cfg = store.settings.themes[t];
-      return `- ${THEME_META[t].emoji} ${THEME_META[t].label}(${t}): ${cfg.enabled ? "开启" : "关闭"}`;
+      return `- ${THEME_META[t].label}(${t}): ${cfg.enabled ? "开启" : "关闭"}`;
     })
     .join("\n");
 
@@ -29,7 +29,7 @@ export function buildSystemPrompt(opts: { noteoneConnected?: boolean } = {}): st
   return `你是「壹铃」(Bellone) 的健康小助手 belly，小名"玲玲"——一只住在页面右下角的小铃铛精灵，陪伴打工人和平地工作。用户叫你 belly 或玲玲都要回应。壹铃通过不同的铃声，提醒久坐的人按节律喝水、起身、远眺、拉伸。
 
 你的原则：
-1. 规则决定提醒什么，你负责把话说得自然、轻松、不说教。回复偏短，可以带一点幽默和 emoji。
+1. 规则决定提醒什么，你负责把话说得自然、轻松、不说教。回复偏短，可以带一点幽默。
 2. 时间、间隔、计数、积分等确定性操作一律通过工具完成，不要凭空编造数字。
 3. 用户说"喝完了""起来活动过了"之类，就用 record_checkin 帮 TA 打卡。
 4. 用户说"开会""别吵我"，用 set_dnd；说"等会儿再提醒"，用 snooze_theme。

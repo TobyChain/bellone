@@ -63,7 +63,7 @@ export function fireReminder(theme: ThemeKey, reason: "due" | "manual" = "due", 
   const personalized = consumeCopy(theme);
   const payload = {
     theme,
-    title: `${meta.emoji} ${meta.label}提醒`,
+    title: `${meta.label}提醒`,
     body: personalized?.body ?? meta.action,
     tip: personalized?.tip ?? `小贴士：${pickTip(theme)}`,
   };

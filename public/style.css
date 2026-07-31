@@ -310,7 +310,9 @@ h2 { font-size: 16px; margin: 0 0 14px; }
 }
 .burst span {
   position: absolute;
-  font-size: 20px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   animation: burst-fly 1s ease-out forwards;
 }
 @keyframes burst-fly {

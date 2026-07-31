@@ -54,10 +54,11 @@ function celebrate(streakDays) {
   celebrationChime();
   const burst = document.createElement("div");
   burst.className = "burst";
-  const emojis = ["✨", "🎉", "💪", "🌟", "💧", "🍀"];
+  const colors = ["#f6c453", "#30d158", "#0a84ff", "#ff9f0a", "#ff375f", "#5e5ce6"];
   for (let i = 0; i < 10; i++) {
     const s = document.createElement("span");
-    s.textContent = emojis[i % emojis.length];
+    s.className = "dot";
+    s.style.background = colors[i % colors.length];
     s.style.setProperty("--dx", `${(Math.random() - 0.5) * 260}px`);
     s.style.setProperty("--dy", `${-60 - Math.random() * 160}px`);
     s.style.animationDelay = `${Math.random() * 0.1}s`;
@@ -66,10 +67,10 @@ function celebrate(streakDays) {
   document.body.appendChild(burst);
   setTimeout(() => burst.remove(), 1200);
   if (streakDays === 7 || streakDays === 30) {
-    miniToast(`🏆 里程碑达成：连续打卡 ${streakDays} 天！身体正在悄悄感谢你`);
+    miniToast(`里程碑达成：连续打卡 ${streakDays} 天，身体正在悄悄感谢你`);
   }
   setBellyState("jumping");
-  bellySay("+10 健康值！干得漂亮 ✨", 3000);
+  bellySay("+10 健康值，干得漂亮", 3000);
 }
 
 /* ---------- belly 宠物状态机 ---------- */
@@ -160,10 +161,10 @@ function renderSidebar() {
   $("#s-streak").textContent = status.stats.streakDays;
   const badge = $("#quiet-badge");
   if (status.quiet.quiet) {
-    badge.textContent = `🔕 ${status.quiet.reason}`;
+    badge.textContent = status.quiet.reason;
     badge.classList.add("quiet");
   } else {
-    badge.textContent = "🔔 提醒守护中";
+    badge.textContent = "提醒守护中";
     badge.classList.remove("quiet");
   }
   const dndOn = status.dndUntil && Date.now() < status.dndUntil;
@@ -205,7 +206,7 @@ async function doCheckin(theme) {
   }).then((r) => r.json());
   celebrate(r.streakDays);
   if (r.streakDays !== 7 && r.streakDays !== 30) {
-    miniToast(`已记录 ✅ 今日第 ${r.todayCount} 次打卡，健康值 +${r.pointsAdded ?? 10} · ${r.tip}`);
+    miniToast(`已记录，今日第 ${r.todayCount} 次打卡，健康值 +${r.pointsAdded ?? 10} · ${r.tip}`);
   }
   await loadStatus();
 }
@@ -222,7 +223,7 @@ function renderTodayLog(items) {
   } else {
     const summary = document.createElement("div");
     summary.className = "log-item";
-    summary.textContent = `🔔 提醒 ${fired} 次 · ✅ 打卡 ${items.length} 次 · 🔥 连续 ${status.stats.streakDays} 天 · 健康值 ${status.stats.healthPoints}`;
+    summary.textContent = `提醒 ${fired} 次 · 打卡 ${items.length} 次 · 连续 ${status.stats.streakDays} 天 · 健康值 ${status.stats.healthPoints}`;
     wrap.appendChild(summary);
     for (const it of items) {
       const row = document.createElement("div");
@@ -232,7 +233,7 @@ function renderTodayLog(items) {
       time.textContent = new Date(it.ts).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
       const text = document.createElement("span");
       const src = it.source === "web" ? "" : it.source === "agent" ? "（AI 助手）" : it.source === "mcp" ? "（MCP）" : "";
-      text.textContent = `${it.emoji} ${it.label}打卡${src}`;
+      text.textContent = `${it.label}打卡${src}`;
       row.append(time, text);
       wrap.appendChild(row);
     }
@@ -274,6 +275,7 @@ function renderSettings() {
   $("#set-lunchStart").value = s.lunchStart;
   $("#set-lunchEnd").value = s.lunchEnd;
   $("#set-sound").checked = s.soundEnabled;
+  $("#set-pet").checked = !s.petHidden;
 
   $("#set-llm-baseUrl").value = s.llm?.baseUrl ?? "";
   $("#set-llm-apiKey").value = s.llm?.apiKey ?? "";
@@ -287,7 +289,7 @@ function renderSettings() {
       : !ns.enabled
         ? "已禁用"
         : ns.connected
-          ? `✅ 已连接（${ns.toolCount} 个工具）`
+          ? `已连接（${ns.toolCount} 个工具）`
           : "检测到 noteone，连接中/已降级";
 
   const days = $("#set-days");
@@ -328,6 +330,7 @@ $("#btn-save").addEventListener("click", async () => {
   settingsDraft.lunchEnd = $("#set-lunchEnd").value || settingsDraft.lunchEnd;
   settingsDraft.reminderIntervalMin = Number($("#set-interval").value) || settingsDraft.reminderIntervalMin || 45;
   settingsDraft.soundEnabled = $("#set-sound").checked;
+  settingsDraft.petHidden = !$("#set-pet").checked;
   settingsDraft.llm = {
     baseUrl: $("#set-llm-baseUrl").value.trim(),
     apiKey: $("#set-llm-apiKey").value.trim(),
@@ -339,7 +342,7 @@ $("#btn-save").addEventListener("click", async () => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(settingsDraft),
   });
-  miniToast("设置已保存 ✅");
+  miniToast("设置已保存");
   await loadStatus();
 });
 
@@ -356,21 +359,21 @@ $("#btn-llm-test").addEventListener("click", async () => {
         model: $("#set-llm-model").value.trim(),
       }),
     }).then((res) => res.json());
-    result.textContent = r.ok ? "✅ 连接成功" : `❌ ${r.error || `HTTP ${r.status}`}`;
+    result.textContent = r.ok ? "连接成功" : `连接失败：${r.error || `HTTP ${r.status}`}`;
   } catch (err) {
-    result.textContent = `❌ ${err.message}`;
+    result.textContent = `连接失败：${err.message}`;
   }
 });
 
 /* ---------- 免打扰 ---------- */
 $("#btn-dnd").addEventListener("click", async () => {
   await fetch("/api/dnd", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ minutes: 60 }) });
-  miniToast("🔕 免打扰已开启 60 分钟");
+  miniToast("免打扰已开启 60 分钟");
   await loadStatus();
 });
 $("#btn-dnd-off").addEventListener("click", async () => {
   await fetch("/api/dnd", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ minutes: 0 }) });
-  miniToast("🔔 免打扰已关闭");
+  miniToast("免打扰已关闭");
   await loadStatus();
 });
 
@@ -506,10 +509,10 @@ $("#chat-form").addEventListener("submit", async (e) => {
         if (ev === "tool_start") {
           closeStream();
           if (!thinking.isConnected) $("#chat-messages").appendChild(thinking);
-          thinking.textContent = `🔧 ${data.name} …`;
-          if (!bellyPanelOpen()) bellySay(`🔧 正在${data.name.startsWith("noteone_") ? "翻笔记" : "处理"}…`, 4000);
+          thinking.textContent = `调用 ${data.name} …`;
+          if (!bellyPanelOpen()) bellySay(`正在${data.name.startsWith("noteone_") ? "翻笔记" : "处理"}…`, 4000);
         }
-        if (ev === "tool_end") thinking.textContent = `🔧 ${data.name} 完成 (${data.durationMs}ms)`;
+        if (ev === "tool_end") thinking.textContent = `${data.name} 完成 (${data.durationMs}ms)`;
         if (ev === "message") {
           if (thinking.isConnected) thinking.remove();
           if (streamEl && streamEl.textContent === data.content) {
@@ -529,7 +532,7 @@ $("#chat-form").addEventListener("submit", async (e) => {
           addMsg("error", data.message);
           setBellyTalking(false);
           setBellyState("failed");
-          bellySay(`😵 ${data.message}`, 6000);
+          bellySay(data.message, 6000);
         }
       }
     }

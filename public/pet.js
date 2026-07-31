@@ -42,7 +42,10 @@ function bellySay(text, ms = 6000) {
 const wrap = $("#belly-wrap");
 wrap.addEventListener("pointerenter", () => native.setInteractive(true));
 wrap.addEventListener("pointerleave", () => {
-  if (!dragging) native.setInteractive(false);
+  if (dragging) return;
+  const menu = document.getElementById("pet-menu");
+  if (menu) menu.hidden = true;
+  native.setInteractive(false);
 });
 
 /* ---------- 拖拽移动窗口 + 点击打开主界面 ---------- */
@@ -80,11 +83,31 @@ bellyBtn.addEventListener("pointerup", (e) => {
   }
 });
 
-// 右键隐藏桌宠（隐藏后提醒改走系统通知）
+// 右键弹出菜单（选择「隐藏」才隐藏，而非直接隐藏）
+const petMenu = document.getElementById("pet-menu");
+function closeMenu() {
+  petMenu.hidden = true;
+  if (!dragging) native.setInteractive(false);
+}
 bellyBtn.addEventListener("contextmenu", (e) => {
   e.preventDefault();
-  bellySay("先躲起来啦，提醒会用系统通知找你 👋", 2500);
-  setTimeout(() => native.hidePet(), 600);
+  native.setInteractive(true);
+  petMenu.hidden = false;
+});
+document.getElementById("menu-hide").addEventListener("click", () => {
+  petMenu.hidden = true;
+  bellySay("先躲起来啦，提醒会用系统通知找你", 1800);
+  setTimeout(() => native.hidePet(), 500);
+});
+document.getElementById("menu-open").addEventListener("click", () => {
+  closeMenu();
+  native.openMain();
+});
+// 点菜单以外区域关闭
+document.addEventListener("pointerdown", (e) => {
+  if (!petMenu.hidden && !petMenu.contains(e.target) && e.target !== bellyBtn && !bellyBtn.contains(e.target)) {
+    closeMenu();
+  }
 });
 
 /* ---------- SSE：与主服务共享事件流 ---------- */
@@ -98,7 +121,7 @@ function connectSSE() {
   es.addEventListener("status", (e) => {
     try {
       const data = JSON.parse(e.data);
-      if (data.type === "checkin") { setBellyState("jumping"); bellySay("+10 健康值 ✨", 3000); }
+      if (data.type === "checkin") { setBellyState("jumping"); bellySay("+10 健康值", 3000); }
     } catch {}
   });
   es.onerror = () => { es.close(); setTimeout(connectSSE, 5000); };
