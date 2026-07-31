@@ -50,12 +50,39 @@
     }
     .belly:active { cursor: grabbing; }
     .belly svg { overflow: visible; display: block; width: 56px; height: 64px; }
+    .pet-menu {
+      pointer-events: auto;
+      background: #fff;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      min-width: 118px;
+      font: 13px/1 -apple-system, "PingFang SC", sans-serif;
+    }
+    .pet-menu button {
+      border: none; background: transparent; text-align: left;
+      padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #1d1d1f;
+    }
+    .pet-menu button:hover { background: #eef1ff; }
+    .pet-menu[hidden] { display: none; }
+    @media (prefers-color-scheme: dark) {
+      .pet-menu { background: #2c2c2e; border-color: #3a3a3c; }
+      .pet-menu button { color: #f5f5f7; }
+      .pet-menu button:hover { background: #3a3a3c; }
+    }
   </style>
   <link rel="stylesheet" href="pet.css" />
 </head>
 <body>
   <div id="belly-wrap">
     <div id="belly-bubble" class="belly-bubble" hidden></div>
+    <div id="pet-menu" class="pet-menu" hidden>
+      <button type="button" id="menu-hide">隐藏 belly</button>
+      <button type="button" id="menu-open">打开主界面</button>
+    </div>
     <button type="button" id="belly" class="belly idle" aria-label="belly 玲玲">
       <svg viewBox="0 0 64 64">
         <g class="belly-body">

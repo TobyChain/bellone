@@ -70,9 +70,11 @@ app.get("/api/status", (_req, res) => {
 });
 
 app.put("/api/settings", (req, res) => {
+  const hadPetHidden = typeof (req.body ?? {}).petHidden === "boolean";
   const s = applySettingsPatch(req.body ?? {}, { allowLlm: true });
   void syncNoteoneMcp();
   broadcast("status", { type: "settings" });
+  if (hadPetHidden) broadcast("pet", { hidden: s.petHidden });
   res.json({
     ok: true,
     settings: {
@@ -155,7 +157,6 @@ app.get("/api/checkins/today", (_req, res) => {
       ts: c.ts,
       theme: c.theme,
       label: THEME_META[c.theme].label,
-      emoji: THEME_META[c.theme].emoji,
       source: c.source,
     }))
     .reverse();
@@ -234,7 +235,7 @@ setInterval(() => tick(), 30_000);
 setInterval(() => store.pruneOld(), 24 * 3600_000);
 
 app.listen(config.port, () => {
-  console.log(`🔔 壹铃 Bellone 已启动: http://localhost:${config.port}`);
+  console.log(`壹铃 Bellone 已启动: http://localhost:${config.port}`);
   console.log(`   数据目录: ${config.dataDir}`);
   console.log(`   AI 助手: ${llmConfigured() ? `已配置 (${getLlmConfig().model})` : "未配置（可在设置页配置）"}`);
   void syncNoteoneMcp();

@@ -77,7 +77,7 @@ server.tool(
     );
     const r = remote ?? recordCheckin(theme as ThemeKey, "mcp");
     return text(
-      `已记录 ✅ 今日第 ${r.todayCount} 次打卡，健康值 +10（累计 ${r.healthPoints}），连续 ${r.streakDays} 天。小贴士：${r.tip}`
+      `已记录，今日第 ${r.todayCount} 次打卡，健康值 +10（累计 ${r.healthPoints}），连续 ${r.streakDays} 天。小贴士：${r.tip}`
     );
   }
 );

@@ -4,7 +4,7 @@ const BASE = process.env.BASE || "http://localhost:3213";
 const results = [];
 const check = (name, ok, detail = "") => {
   results.push({ name, ok });
-  console.log(`${ok ? "✅" : "❌"} ${name}${detail ? ` — ${detail}` : ""}`);
+  console.log(`${ok ? "PASS" : "FAIL"} ${name}${detail ? ` — ${detail}` : ""}`);
 };
 
 const browser = await chromium.launch();
@@ -38,7 +38,7 @@ await page.waitForFunction(
   { timeout: 15000 }
 );
 const assistants = await page.locator(".msg.assistant").allTextContents();
-check("流式助手回复", assistants.some((t) => t.includes("好的，已帮你打卡喝水 ✅")), assistants.at(-1));
+check("流式助手回复", assistants.some((t) => t.includes("好的，已帮你打卡喝水")), assistants.at(-1));
 const dupCount = assistants.filter((t) => t.includes("已帮你打卡")).length;
 check("无重复气泡", dupCount === 1, `count=${dupCount}`);
 check("思考中提示已清除", (await page.locator(".msg.tool").count()) === 0);

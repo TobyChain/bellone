@@ -174,7 +174,7 @@ export function buildToolkit(): { tools: ToolDefinition[]; handlers: Record<stri
       const r = recordCheckin(theme, "agent");
       return JSON.stringify({
         ok: true,
-        message: `已记录 ✅ 今日第 ${r.todayCount} 次打卡，健康值 +${r.pointsAdded}（累计 ${r.healthPoints}）`,
+        message: `已记录，今日第 ${r.todayCount} 次打卡，健康值 +${r.pointsAdded}（累计 ${r.healthPoints}）`,
         streakDays: r.streakDays,
         tip: r.tip,
       });

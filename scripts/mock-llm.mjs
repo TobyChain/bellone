@@ -39,7 +39,7 @@ http
       );
       const hasToolResult = payload.messages.some((m) => m.role === "tool");
       if (isCopywriter) {
-        respond({ content: '{"body":"该给身体的水库补货啦 💧","tip":"喝水这件事，你比昨天做得更好"}' });
+        respond({ content: '{"body":"该给身体的水库补货啦","tip":"喝水这件事，你比昨天做得更好"}' });
       } else if (!hasToolResult && payload.tools) {
         respond({
           content: null,
@@ -48,7 +48,7 @@ http
           ],
         });
       } else {
-        respond({ content: "好的，已帮你打卡喝水 ✅" });
+        respond({ content: "好的，已帮你打卡喝水" });
       }
     });
   })

@@ -1,16 +1,16 @@
 import type { ThemeKey } from "./store.js";
 import { store } from "./store.js";
 
-export const THEME_META: Record<ThemeKey, { label: string; emoji: string; action: string }> = {
-  water: { label: "喝水", emoji: "💧", action: "起身接一杯 200–300ml 温水，慢慢喝完~" },
-  stand: { label: "起身", emoji: "🚶", action: "站起来走两步，倒杯水或去趟窗边，给腰背放个假。" },
-  eyes: { label: "远眺", emoji: "👀", action: "看向 6 米外 20 秒，眨眨眼，给眼睛做个 SPA。" },
-  stretch: { label: "拉伸", emoji: "🧘", action: "肩颈画圈 5 次，双手向上伸展 10 秒。" },
+export const THEME_META: Record<ThemeKey, { label: string; action: string }> = {
+  water: { label: "喝水", action: "起身接一杯 200–300ml 温水，慢慢喝完~" },
+  stand: { label: "起身", action: "站起来走两步，倒杯水或去趟窗边，给腰背放个假。" },
+  eyes: { label: "远眺", action: "看向 6 米外 20 秒，眨眨眼，给眼睛做个 SPA。" },
+  stretch: { label: "拉伸", action: "肩颈画圈 5 次，双手向上伸展 10 秒。" },
 };
 
 const TIPS: Record<ThemeKey, string[]> = {
   water: [
-    "代码 bug 可以慢慢调，但缺水的脑细胞可不会自己 debug 哦！🧠💦",
+    "代码 bug 可以慢慢调，但缺水的脑细胞可不会自己 debug 哦。",
     "大脑 75% 是水，掉线卡顿时先怀疑水位不足。",
     "小口多次比一次牛饮更护肾，温水优先。",
     "尿液淡黄是水分刚好的信号灯。",
