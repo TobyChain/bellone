@@ -28,7 +28,29 @@ npm run app        # 本地运行桌面版（主窗口 + 右下角 belly 桌宠�
 npm run dist:mac   # 打包 macOS dmg（输出 release/）
 ```
 
-桌面版把 Express 作为子进程拉起，主窗口与透明置顶的 belly 桌宠窗口共享同一 SSE。数据存 `~/Library/Application Support/Bellone/data`。
+桌面版把 Express 作为子进程拉起，主窗口与透明置顶的 belly 桌宠窗口共享同一 SSE。数据存 `~/Library/Application Support/Bellone/data`。桌宠可拖动、点击唤起主窗口、右键隐藏（隐藏后提醒转为系统通知）；重复打开只会聚焦已有实例。
+
+### 安装 dmg
+
+1. 打开 `release/Bellone-0.1.0-arm64.dmg`，把 **Bellone** 拖到 **Applications**
+2. 首次打开若被 Gatekeeper 拦（未签名）：**系统设置 → 隐私与安全性 → 仍要打开**，或终端执行一次：
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/Bellone.app
+   ```
+
+### Homebrew 安装
+
+发布后可通过自建 tap 安装（二选一）：
+
+```bash
+# 方式一：cask（直接装桌面 .app，走 GitHub Release 的 dmg）
+brew install --cask TobyChain/tap/bellone
+
+# 方式二：formula（走 Node，得到命令行 `bellone` 启动本地服务，无 Gatekeeper 阻力）
+brew install TobyChain/tap/bellone
+```
+
+> tap 仓库 `TobyChain/homebrew-tap` 需另建；cask 版指向 Release 里的 dmg，formula 版 `depends_on "node"` 并 `npm install` 后暴露 `bellone` 命令。详见下方"发布"。
 
 ### 可选：开启 AI 助手（belly · 玲玲）
 
