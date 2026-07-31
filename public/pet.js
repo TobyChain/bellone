@@ -32,7 +32,7 @@ let bubbleTimer = null;
 function bellySay(text, ms = 6000) {
   const bubble = $("#belly-bubble");
   if (!bubble || !text) return;
-  bubble.textContent = text.length > 48 ? `${text.slice(0, 48)}…` : text;
+  bubble.textContent = text.length > 90 ? `${text.slice(0, 90)}…` : text;
   bubble.hidden = false;
   clearTimeout(bubbleTimer);
   bubbleTimer = setTimeout(() => { bubble.hidden = true; }, ms);
