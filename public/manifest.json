@@ -1,0 +1,17 @@
+{
+  "name": "壹铃 Bellone",
+  "short_name": "壹铃",
+  "description": "用不同的铃声，提醒你和平地工作",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f7",
+  "theme_color": "#0a84ff",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

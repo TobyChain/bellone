@@ -1,0 +1,63 @@
+{
+  "name": "bellone",
+  "version": "0.1.0",
+  "description": "壹铃 (Bellone) — 用不同的铃声，提醒你和平地工作与休息",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "mcp": "tsx src/mcp.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepack": "tsc",
+    "app": "npm run build && electron .",
+    "dist:mac": "npm run build && electron-builder --mac"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "express": "^5.1.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "playwright": "^1.62.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.10"
+  },
+  "bin": {
+    "bellone": "./bin/bellone.mjs"
+  },
+  "files": [
+    "dist",
+    "public",
+    "bin",
+    "README.md"
+  ],
+  "build": {
+    "appId": "com.bellone.app",
+    "productName": "Bellone",
+    "asar": false,
+    "files": [
+      "dist/**",
+      "public/**",
+      "electron/**",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "target": "dmg"
+    },
+    "directories": {
+      "output": "release"
+    }
+  }
+}
