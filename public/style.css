@@ -135,8 +135,6 @@ h2 { font-size: 16px; margin: 0 0 14px; }
   padding: 18px;
 }
 .theme-card.off { opacity: 0.5; }
-.theme-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.theme-emoji { font-size: 26px; }
 .theme-name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
 .theme-int { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
 .theme-actions { display: flex; gap: 8px; }

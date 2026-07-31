@@ -180,7 +180,6 @@ function renderThemes() {
     const card = document.createElement("div");
     card.className = "theme-card" + (cfg.enabled ? "" : " off");
     card.innerHTML = `
-      <div class="theme-head"><span class="theme-emoji">${meta.emoji}</span></div>
       <div class="theme-name">${meta.label}</div>
       <div class="theme-int">${cfg.enabled ? `每 ${cfg.intervalMin} 分钟提醒` : "已关闭"}</div>
       <div class="theme-actions">
@@ -316,7 +315,7 @@ function renderSettings() {
     const row = document.createElement("div");
     row.className = "theme-setting";
     row.innerHTML = `
-      <span class="t-name">${meta.emoji} ${meta.label}</span>
+      <span class="t-name">${meta.label}</span>
       <label class="switch"><input type="checkbox" ${cfg.enabled ? "checked" : ""} data-k="on" /><span class="slider"></span></label>`;
     row.querySelector('[data-k="on"]').addEventListener("change", (e) => { cfg.enabled = e.target.checked; });
     themesEl.appendChild(row);

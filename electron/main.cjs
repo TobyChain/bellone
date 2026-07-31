@@ -86,8 +86,8 @@ function createMainWindow() {
 
 function createPetWindow() {
   petWin = new BrowserWindow({
-    width: 150,
-    height: 170,
+    width: 240,
+    height: 240,
     resizable: false,
     frame: false,
     transparent: true,
@@ -108,7 +108,7 @@ function createPetWindow() {
   petWin.loadURL(`http://127.0.0.1:${serverPort}/pet.html`);
 
   const { workArea } = require("electron").screen.getPrimaryDisplay();
-  petWin.setPosition(workArea.x + workArea.width - 168, workArea.y + workArea.height - 188);
+  petWin.setPosition(workArea.x + workArea.width - 248, workArea.y + workArea.height - 248);
   petWin.on("closed", () => { petWin = null; });
 }
 
