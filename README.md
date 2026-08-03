@@ -38,6 +38,12 @@ npm run dist:mac   # 打包 macOS dmg（输出 release/）
    xattr -dr com.apple.quarantine /Applications/Bellone.app
    ```
 
+### 自动更新
+
+桌面版内置 `electron-updater`，启动后自动检查 [GitHub Releases](https://github.com/TobyChain/bellone/releases) 的新版本并后台下载，下载完成后退出即自动安装。更新只替换应用本体，不影响你的数据。
+
+> 数据存放在 `~/Library/Application Support/Bellone/data`（应用包之外），升级/重装不会丢失提醒记录、打卡与配置。
+
 ### Homebrew 安装
 
 发布后可通过自建 tap 安装（二选一）：
