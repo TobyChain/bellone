@@ -16,10 +16,11 @@
     "test": "vitest run",
     "prepack": "tsc",
     "app": "npm run build && electron .",
-    "dist:mac": "npm run build && electron-builder --mac"
+    "dist:mac": "bash scripts/build-mac.sh"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
+    "electron-updater": "^6.8.9",
     "express": "^5.1.0",
     "zod": "^3.24.0"
   },
@@ -54,15 +55,32 @@
     ],
     "mac": {
       "category": "public.app-category.healthcare-fitness",
-      "target": "dmg",
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "icon": "build/icon.icns"
     },
     "dmg": {
       "title": "壹铃 Bellone",
       "contents": [
-        { "x": 140, "y": 200, "type": "file" },
-        { "x": 400, "y": 200, "type": "link", "path": "/Applications" }
+        {
+          "x": 140,
+          "y": 200,
+          "type": "file"
+        },
+        {
+          "x": 400,
+          "y": 200,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "TobyChain",
+      "repo": "bellone"
     },
     "directories": {
       "output": "release"

@@ -3,6 +3,19 @@ const path = require("node:path");
 const net = require("node:net");
 const http = require("node:http");
 
+// Auto-update via GitHub Releases (electron-updater). Only active in packaged builds.
+let autoUpdater = null;
+if (app.isPackaged) {
+  try {
+    autoUpdater = require("electron-updater").autoUpdater;
+    autoUpdater.autoDownload = true;      // pull the update in the background
+    autoUpdater.autoInstallOnAppQuit = true; // install when the user quits (data lives outside the bundle)
+  } catch (e) {
+    console.error("[updater] electron-updater unavailable:", e);
+    autoUpdater = null;
+  }
+}
+
 const ROOT = path.join(__dirname, "..");
 const isDev = !app.isPackaged;
 
@@ -221,6 +234,28 @@ function buildAppMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
+/** Wire up GitHub-release auto-update. Non-blocking; data lives outside the bundle. */
+function initAutoUpdate() {
+  if (!autoUpdater) return;
+  autoUpdater.on("update-available", (info) => {
+    console.log(`[updater] update available: ${info.version}`);
+  });
+  autoUpdater.on("update-downloaded", (info) => {
+    console.log(`[updater] downloaded ${info.version}, will install on quit`);
+    if (Notification.isSupported()) {
+      const n = new Notification({
+        title: "壹铃 已下载新版本",
+        body: `v${info.version} 将在退出后自动安装，你的数据不受影响。`,
+      });
+      n.on("click", () => { autoUpdater.quitAndInstall(); });
+      n.show();
+    }
+  });
+  autoUpdater.on("error", (err) => console.error("[updater] error:", err?.message || err));
+  // Delay the check so it doesn't compete with server startup.
+  setTimeout(() => autoUpdater.checkForUpdates().catch((e) => console.error("[updater] check failed:", e?.message || e)), 8000);
+}
+
 app.whenReady().then(async () => {
   if (process.platform === "darwin") app.setActivationPolicy("regular");
   serverPort = process.env.BELLONE_PORT ? Number(process.env.BELLONE_PORT) : await getFreePort();
@@ -235,6 +270,7 @@ app.whenReady().then(async () => {
   const status = await fetchStatus();
   if (!status?.settings?.petHidden) createPetWindow();
   subscribePetEvents();
+  initAutoUpdate();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
