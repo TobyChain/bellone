@@ -580,6 +580,25 @@ function updateBadge() {
   document.title = n > 0 ? `(${n}) 壹铃 Bellone` : "壹铃 Bellone";
 }
 
+/* ---------- 主题切换 ---------- */
+function initThemeToggle() {
+  const btn = $("#btn-theme");
+  if (!btn) return;
+  const KEY = "bellone-theme";
+
+  // Restore persisted choice.
+  const saved = localStorage.getItem(KEY);
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+
+  btn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const isDark = current === "dark" || (!current && matchMedia("(prefers-color-scheme: dark)").matches);
+    const next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem(KEY, next);
+  });
+}
+
 /* ---------- 侧边栏宽度拖动 ---------- */
 function initSidebarResize() {
   const divider = $("#sidebar-divider");
@@ -623,5 +642,6 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 initSidebarResize();
+initThemeToggle();
 loadStatus().then(connectSSE);
 setInterval(loadStatus, 60_000);
