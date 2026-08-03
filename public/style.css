@@ -69,9 +69,29 @@ button.secondary { background: var(--border); color: var(--text); }
 
 .layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: var(--sidebar-width, 260px) 6px 1fr;
   min-height: 100vh;
 }
+
+/* 侧边栏宽度拖动条 */
+.sidebar-divider {
+  cursor: col-resize;
+  background: transparent;
+  transition: background 0.15s;
+  position: relative;
+}
+.sidebar-divider:hover, .sidebar-divider.dragging { background: var(--accent-soft); }
+.sidebar-divider::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px; height: 40px;
+  border-radius: 1px;
+  background: var(--border);
+}
+.sidebar-divider:hover::after, .sidebar-divider.dragging::after { background: var(--accent); }
+body.resizing-sidebar { cursor: col-resize; user-select: none; }
 
 /* ---- 侧边栏 ---- */
 .sidebar {
@@ -379,6 +399,7 @@ h2 { font-size: 16px; margin: 0; }
 
 @media (max-width: 760px) {
   .layout { grid-template-columns: 1fr; }
+  .sidebar-divider { display: none; }
   .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; }
   .side-footer { display: none; }
   .main { padding: 20px 16px; }

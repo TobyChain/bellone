@@ -564,9 +564,48 @@ function updateBadge() {
   document.title = n > 0 ? `(${n}) 壹铃 Bellone` : "壹铃 Bellone";
 }
 
+/* ---------- 侧边栏宽度拖动 ---------- */
+function initSidebarResize() {
+  const divider = $("#sidebar-divider");
+  if (!divider) return;
+  const MIN = 200, MAX = 480;
+  const KEY = "bellone-sidebar-width";
+
+  // Restore persisted width.
+  const saved = parseInt(localStorage.getItem(KEY), 10);
+  if (saved >= MIN && saved <= MAX) document.documentElement.style.setProperty("--sidebar-width", saved + "px");
+
+  let dragging = false;
+  divider.addEventListener("mousedown", (e) => {
+    dragging = true;
+    divider.classList.add("dragging");
+    document.body.classList.add("resizing-sidebar");
+    e.preventDefault();
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const w = Math.min(MAX, Math.max(MIN, e.clientX));
+    document.documentElement.style.setProperty("--sidebar-width", w + "px");
+  });
+  window.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    divider.classList.remove("dragging");
+    document.body.classList.remove("resizing-sidebar");
+    const w = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sidebar-width"), 10);
+    if (w) localStorage.setItem(KEY, w);
+  });
+  // Double-click resets to default.
+  divider.addEventListener("dblclick", () => {
+    document.documentElement.style.setProperty("--sidebar-width", "260px");
+    localStorage.setItem(KEY, 260);
+  });
+}
+
 /* ---------- 启动 ---------- */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
+initSidebarResize();
 loadStatus().then(connectSSE);
 setInterval(loadStatus, 60_000);
