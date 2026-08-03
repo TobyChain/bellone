@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config, llmConfigured, getLlmConfig, maskApiKey, isMaskedKey } from "./config.js";
 import { store, parseTheme, applySettingsPatch } from "./store.js";
-import { syncNoteoneMcp, getNoteoneToolkit, getNoteoneStatus } from "./agent/mcp-client.js";
+import { syncNoteoneMcp, getNoteoneToolkit, getNoteoneStatus, syncLlmFromNoteone } from "./agent/mcp-client.js";
 import { addClient, broadcast, sseFrame } from "./events.js";
 import {
   tick,
@@ -82,6 +82,20 @@ app.put("/api/settings", (req, res) => {
       llm: { baseUrl: s.llm.baseUrl, model: s.llm.model, apiKey: maskApiKey(s.llm.apiKey), hasApiKey: Boolean(s.llm.apiKey) },
     },
   });
+});
+
+app.post("/api/settings/sync-noteone", async (_req, res) => {
+  try {
+    const result = await syncLlmFromNoteone();
+    if (!result) {
+      res.json({ ok: false, error: "未检测到 noteone（需先启动壹识）" });
+      return;
+    }
+    broadcast("status", { type: "settings" });
+    res.json({ ok: true, ...result });
+  } catch (err: any) {
+    res.json({ ok: false, error: err?.message || String(err) });
+  }
 });
 
 app.post("/api/llm/test", async (req, res) => {

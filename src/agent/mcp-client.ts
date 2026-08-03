@@ -3,7 +3,7 @@ import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { parseDotEnv } from "../config.js";
-import { store } from "../store.js";
+import { store, applySettingsPatch } from "../store.js";
 import type { ToolDefinition } from "./llm.js";
 import type { ToolHandler } from "./tools.js";
 
@@ -153,6 +153,49 @@ export function getNoteoneStatus(): {
     enabled: store.settings.noteoneMcp.enabled,
     connected,
     toolCount: cachedTools.length,
+  };
+}
+
+/** Attempt to read LLM config from a running noteone instance (API + .env fallback). */
+export async function syncLlmFromNoteone(): Promise<{ baseUrl: string; model: string; apiKey: string; source: string } | null> {
+  // 1. Try the noteone HTTP API for base URL + model (works for both dev and embedded).
+  let baseUrl = "";
+  let model = "";
+  let hasApiKey = false;
+  try {
+    const resp = await fetch("http://127.0.0.1:3000/api/settings", { signal: AbortSignal.timeout(3000) });
+    if (resp.ok) {
+      const data = await resp.json() as { llm?: { baseUrl?: string; model?: string; hasApiKey?: boolean } };
+      baseUrl = data.llm?.baseUrl ?? "";
+      model = data.llm?.model ?? "";
+      hasApiKey = data.llm?.hasApiKey ?? false;
+    }
+  } catch { /* noteone not running on 3000 */ }
+
+  // 2. Try reading QWEN_* from the .env file (dev server only — gives us the actual key).
+  let apiKey = "";
+  const detected = detectNoteone();
+  if (detected) {
+    apiKey = detected.env.QWEN_API_KEY || "";
+    if (!baseUrl) baseUrl = detected.env.QWEN_BASE_URL?.replace(/\/$/, "") || "";
+    if (!model) model = detected.env.QWEN_MODEL || "";
+  }
+
+  if (!baseUrl && !model && !apiKey) return null;
+
+  // Apply to bellone's settings.
+  const patch: { llm?: Partial<{ baseUrl: string; apiKey: string; model: string }> } = {};
+  if (baseUrl) patch.llm = { baseUrl };
+  if (model) patch.llm!.model = model;
+  if (apiKey) patch.llm!.apiKey = apiKey;
+  applySettingsPatch(patch, { allowLlm: true });
+  store.saveSettings();
+
+  return {
+    baseUrl,
+    model,
+    apiKey: apiKey ? "(已同步)" : hasApiKey ? "(需手动输入)" : "(未设置)",
+    source: apiKey ? ".env" : "API",
   };
 }
 

@@ -364,6 +364,22 @@ $("#btn-llm-test").addEventListener("click", async () => {
   }
 });
 
+$("#btn-sync-noteone").addEventListener("click", async () => {
+  const el = $("#sync-result");
+  el.textContent = "同步中…";
+  try {
+    const r = await fetch("/api/settings/sync-noteone", { method: "POST" }).then((res) => res.json());
+    if (r.ok) {
+      el.textContent = `已同步：${r.baseUrl} / ${r.model}（API Key ${r.apiKey}）`;
+      await loadStatus();
+    } else {
+      el.textContent = `同步失败：${r.error || "未知错误"}`;
+    }
+  } catch (err) {
+    el.textContent = `同步失败：${err.message}`;
+  }
+});
+
 /* ---------- 免打扰 ---------- */
 $("#btn-dnd").addEventListener("click", async () => {
   await fetch("/api/dnd", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ minutes: 60 }) });
