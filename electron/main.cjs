@@ -88,6 +88,8 @@ function createMainWindow() {
     minWidth: 720,
     minHeight: 560,
     title: "壹铃 Bellone",
+    titleBarStyle: "hiddenInset",
+    trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: "#f5f5f7",
     show: false,
     webPreferences: { contextIsolation: true },

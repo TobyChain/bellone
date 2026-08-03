@@ -108,7 +108,7 @@ body.resizing-sidebar { cursor: col-resize; user-select: none; }
 .sidebar {
   background: var(--side);
   border-right: 1px solid var(--border);
-  padding: 24px 16px;
+  padding: 48px 16px 24px;
   display: flex;
   flex-direction: column;
   gap: 22px;
