@@ -90,6 +90,8 @@ button.secondary { background: var(--border); color: var(--text); }
 .brand-logo { font-size: 32px; }
 .brand-name { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
 .brand-sub { font-size: 12px; color: var(--muted); }
+.gh-link { color: var(--muted); margin-left: auto; display: inline-flex; transition: color 0.15s; }
+.gh-link:hover { color: var(--text); }
 
 .nav { display: flex; flex-direction: column; gap: 4px; }
 .nav-item {
