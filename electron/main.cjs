@@ -81,7 +81,14 @@ function createMainWindow() {
   });
   mainWin.loadURL(`http://127.0.0.1:${serverPort}/?shell=electron`);
   mainWin.once("ready-to-show", () => mainWin.show());
-  mainWin.on("closed", () => { mainWin = null; });
+  mainWin.on("closed", () => {
+    mainWin = null;
+    // 主窗口关闭后仍保持 Dock 图标可见（macOS），用户可点击 Dock 重新打开
+    if (process.platform === "darwin") {
+      app.dock?.show();
+      app.setActivationPolicy("regular");
+    }
+  });
 }
 
 function createPetWindow() {
@@ -215,6 +222,7 @@ function buildAppMenu() {
 }
 
 app.whenReady().then(async () => {
+  if (process.platform === "darwin") app.setActivationPolicy("regular");
   serverPort = process.env.BELLONE_PORT ? Number(process.env.BELLONE_PORT) : await getFreePort();
   startServer(serverPort);
   try {
