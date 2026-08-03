@@ -13,8 +13,10 @@
   --danger: #ff3b30;
   --radius: 14px;
 }
+
+/* Dark theme: applied via [data-theme="dark"] OR system prefers (when no manual override) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #1c1c1e;
     --card: #2c2c2e;
     --side: #232326;
@@ -23,6 +25,15 @@
     --border: #3a3a3c;
     --accent-soft: rgba(10, 132, 255, 0.22);
   }
+}
+:root[data-theme="dark"] {
+  --bg: #1c1c1e;
+  --card: #2c2c2e;
+  --side: #232326;
+  --text: #f5f5f7;
+  --muted: #98989d;
+  --border: #3a3a3c;
+  --accent-soft: rgba(10, 132, 255, 0.22);
 }
 
 * { box-sizing: border-box; }
@@ -112,6 +123,28 @@ body.resizing-sidebar { cursor: col-resize; user-select: none; }
 .brand-sub { font-size: 12px; color: var(--muted); }
 .gh-link { color: var(--muted); margin-left: auto; display: inline-flex; transition: color 0.15s; }
 .gh-link:hover { color: var(--text); }
+
+/* 主题切换按钮 */
+.theme-toggle {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+.theme-toggle:hover { color: var(--text); background: var(--accent-soft); }
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: block; }
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: none; }
+}
 
 .nav { display: flex; flex-direction: column; gap: 4px; }
 .nav-item {
