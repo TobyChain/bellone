@@ -10,6 +10,7 @@
   <link rel="icon" href="icon.svg" />
 </head>
 <body>
+  <div class="drag-bar"></div>
   <div class="layout">
     <aside class="sidebar">
       <div class="brand">
@@ -85,67 +86,74 @@
 
       <!-- 设置 -->
       <section class="page" id="page-settings">
-        <h1>设置</h1>
+        <div class="page-header">
+          <h1>设置</h1>
+        </div>
         <p class="subtitle">简单配置，开盒即用</p>
-        <div class="card">
-          <h2>提醒时段</h2>
-          <div class="form-row"><label>开始</label><input type="time" id="set-workStart" /></div>
-          <div class="form-row"><label>结束</label><input type="time" id="set-workEnd" /></div>
-          <div class="form-row"><label>午休开始</label><input type="time" id="set-lunchStart" /></div>
-          <div class="form-row"><label>午休结束</label><input type="time" id="set-lunchEnd" /></div>
-          <div class="form-row"><label>工作日</label>
-            <div class="daypick" id="set-days"></div>
-          </div>
-        </div>
-        <div class="card">
-          <h2>提醒频率与动作</h2>
-          <div class="form-row">
-            <label>提醒频率</label>
-            <input type="number" min="5" max="480" id="set-interval" />
-            <span class="muted">分钟（所有动作共用，到点轮流提醒）</span>
-          </div>
-          <div id="set-themes"></div>
+
+        <section class="card">
+          <div class="card-header"><h2>提醒时段</h2></div>
+          <p class="muted">设定工作时间和午休时段，壹铃只在此范围内提醒。</p>
+          <label>开始时间<input type="time" id="set-workStart" /></label>
+          <label>结束时间<input type="time" id="set-workEnd" /></label>
+          <label>午休开始<input type="time" id="set-lunchStart" /></label>
+          <label>午休结束<input type="time" id="set-lunchEnd" /></label>
+          <label>工作日<div class="daypick" id="set-days"></div></label>
+        </section>
+
+        <section class="card">
+          <div class="card-header"><h2>提醒频率与动作</h2></div>
           <p class="muted">配置了 AI 后，belly 会根据你的响应情况自动微调频率；没配 AI 时会在此基础上小幅随机。</p>
-        </div>
-        <div class="card">
-          <h2>铃声</h2>
-          <div class="form-row">
-            <label>提醒响铃</label>
+          <label>提醒频率（分钟）<input type="number" min="5" max="480" id="set-interval" /></label>
+          <div id="set-themes" class="module-list"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-header"><h2>铃声</h2></div>
+          <p class="muted">每个主题有专属铃声：喝水是清泉双音，起身是上行三音，远眺是悠长单音，拉伸是轻快琶音。</p>
+          <div class="module-item">
+            <span>提醒响铃</span>
             <label class="switch"><input type="checkbox" id="set-sound" /><span class="slider"></span></label>
           </div>
-          <p class="muted">每个主题有专属铃声：喝水是清泉双音，起身是上行三音，远眺是悠长单音，拉伸是轻快琶音。</p>
-        </div>
-        <div class="card">
-          <h2>belly 桌宠</h2>
-          <div class="form-row">
-            <label>显示桌宠</label>
+        </section>
+
+        <section class="card">
+          <div class="card-header"><h2>belly 桌宠</h2></div>
+          <p class="muted">仅桌面版生效。关闭后 belly 从桌面消失，提醒改为系统通知；也可右键桌宠选择隐藏。</p>
+          <div class="module-item">
+            <span>显示桌宠</span>
             <label class="switch"><input type="checkbox" id="set-pet" /><span class="slider"></span></label>
           </div>
-          <p class="muted">仅桌面版生效。关闭后 belly 从桌面消失，提醒改为系统通知；也可右键桌宠选择隐藏。</p>
-        </div>
-        <div class="card">
-          <h2>AI 助手（belly · 玲玲）</h2>
-          <div class="form-row"><label>Base URL</label><input type="text" id="set-llm-baseUrl" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" /></div>
-          <div class="form-row"><label>API Key</label><input type="password" id="set-llm-apiKey" placeholder="sk-…" autocomplete="off" /></div>
-          <div class="form-row"><label>模型</label><input type="text" id="set-llm-model" placeholder="qwen-plus" /></div>
-          <div class="form-row">
-            <label></label>
+        </section>
+
+        <section class="card">
+          <div class="card-header"><h2>AI 助手（belly · 玲玲）</h2></div>
+          <p class="muted">任意 OpenAI 兼容接口（DashScope / OpenAI / Ollama）。保存后立即生效，无需重启。</p>
+          <label>Base URL<input type="text" id="set-llm-baseUrl" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" /></label>
+          <label>API Key<input type="password" id="set-llm-apiKey" placeholder="sk-…" autocomplete="off" /></label>
+          <label>模型<input type="text" id="set-llm-model" placeholder="qwen-plus" /></label>
+          <div class="row">
             <button type="button" id="btn-llm-test" class="chip">测试连接</button>
             <span id="llm-test-result" class="muted"></span>
           </div>
-          <p class="muted">任意 OpenAI 兼容接口（DashScope / OpenAI / Ollama）。保存后立即生效，无需重启。</p>
-          <button type="button" id="btn-sync-noteone" class="chip" style="margin-top: 8px;">从 noteone 同步</button>
-          <span id="sync-result" class="muted"></span>
-        </div>
-        <div class="card">
-          <h2>noteone 笔记（MCP）</h2>
-          <div class="form-row"><label>状态</label><span id="noteone-status" class="muted">…</span></div>
-          <div class="form-row">
-            <label>启用</label>
-            <label class="switch"><input type="checkbox" id="set-noteone" /><span class="slider"></span></label>
+          <div class="row">
+            <button type="button" id="btn-sync-noteone" class="chip">从 noteone 同步</button>
+            <span id="sync-result" class="muted"></span>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2>noteone 笔记（MCP）</h2>
+            <span class="badge" id="noteone-badge">…</span>
           </div>
           <p class="muted">检测到本机 noteone（壹识）时自动接入，belly 可帮你记笔记、搜笔记。</p>
-        </div>
+          <div class="module-item">
+            <span id="noteone-status" class="muted">…</span>
+            <label class="switch"><input type="checkbox" id="set-noteone" /><span class="slider"></span></label>
+          </div>
+        </section>
+
         <div class="save-bar">
           <button id="btn-save" class="primary">保存设置</button>
         </div>

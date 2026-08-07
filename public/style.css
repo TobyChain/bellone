@@ -44,6 +44,17 @@ body {
   color: var(--text);
 }
 
+/* Full-width drag strip for hiddenInset title bar */
+.drag-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  -webkit-app-region: drag;
+  z-index: 9999;
+}
+
 .hidden { display: none !important; }
 
 /* ---- 全局表单控件（与 noteone 对齐） ---- */
@@ -117,11 +128,11 @@ body.resizing-sidebar { cursor: col-resize; user-select: none; }
   height: 100vh;
   overflow-y: auto;
 }
-.brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; -webkit-app-region: drag; }
 .brand-logo { font-size: 32px; }
 .brand-name { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
 .brand-sub { font-size: 12px; color: var(--muted); }
-.gh-link { color: var(--muted); margin-left: auto; display: inline-flex; transition: color 0.15s; }
+.gh-link { color: var(--muted); margin-left: auto; display: inline-flex; transition: color 0.15s; -webkit-app-region: no-drag; }
 .gh-link:hover { color: var(--text); }
 
 /* 主题切换按钮 */
@@ -135,6 +146,7 @@ body.resizing-sidebar { cursor: col-resize; user-select: none; }
   display: inline-flex;
   align-items: center;
   transition: color 0.15s, background 0.15s;
+  -webkit-app-region: no-drag;
 }
 .theme-toggle:hover { color: var(--text); background: var(--accent-soft); }
 .theme-toggle .icon-sun { display: none; }
@@ -205,8 +217,9 @@ body.resizing-sidebar { cursor: col-resize; user-select: none; }
 .main { padding: 36px 44px; max-width: 860px; }
 .page { display: none; }
 .page.active { display: block; }
-h1 { font-size: 22px; margin: 8px 0 16px; }
+h1 { font-size: 22px; margin: 8px 0 16px; -webkit-app-region: drag; }
 h2 { font-size: 16px; margin: 0; }
+.page-header { display: flex; justify-content: space-between; align-items: center; }
 .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
 .muted { color: var(--muted); font-size: 13px; }
 
@@ -325,16 +338,17 @@ h2 { font-size: 16px; margin: 0; }
 .hint code { background: var(--card); padding: 2px 6px; border-radius: 6px; }
 
 /* 设置 */
-.form-row { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-.form-row > label:first-child { width: 80px; font-size: 14px; color: var(--muted); }
-.form-row input[type="time"], .form-row input[type="number"] {
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
-  border-radius: 10px;
-  padding: 10px 12px;
+.module-list { display: flex; flex-direction: column; gap: 4px; }
+.module-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--border);
   font-size: 14px;
 }
+.module-item:last-child { border-bottom: none; }
+.row { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
 .daypick { display: flex; gap: 6px; }
 .daypick button {
   width: 34px; height: 34px;
@@ -346,10 +360,6 @@ h2 { font-size: 16px; margin: 0; }
   cursor: pointer;
 }
 .daypick button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-.theme-setting { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.theme-setting:last-child { border-bottom: none; }
-.theme-setting .t-name { flex: 1; font-size: 14px; }
-.theme-setting input[type="number"] { width: 70px; }
 .save-bar { position: sticky; bottom: 12px; display: flex; justify-content: center; }
 .save-bar button { box-shadow: 0 4px 16px rgba(10, 132, 255, 0.4); }
 

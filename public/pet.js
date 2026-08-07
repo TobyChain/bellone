@@ -56,32 +56,35 @@ let lastY = 0;
 const bellyBtn = $("#belly");
 
 bellyBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
   dragging = true;
   moved = false;
   lastX = e.screenX;
   lastY = e.screenY;
+  native.dragStart();
   bellyBtn.setPointerCapture(e.pointerId);
 });
-bellyBtn.addEventListener("pointermove", (e) => {
+const onDragMove = (e) => {
   if (!dragging) return;
-  const dx = e.screenX - lastX;
-  const dy = e.screenY - lastY;
-  if (dx || dy) {
-    if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-    native.moveBy(dx, dy);
-    lastX = e.screenX;
-    lastY = e.screenY;
-  }
-});
-bellyBtn.addEventListener("pointerup", (e) => {
+  if (Math.abs(e.screenX - lastX) + Math.abs(e.screenY - lastY) > 3) moved = true;
+  lastX = e.screenX;
+  lastY = e.screenY;
+};
+const onDragEnd = (e) => {
+  if (!dragging) return;
   dragging = false;
-  bellyBtn.releasePointerCapture(e.pointerId);
+  native.dragEnd();
+  try { bellyBtn.releasePointerCapture(e.pointerId); } catch {}
   if (!moved) {
     native.openMain();
     if (belly.current === "waiting") setBellyState("idle");
     $("#belly-bubble").hidden = true;
   }
-});
+};
+bellyBtn.addEventListener("pointermove", onDragMove);
+bellyBtn.addEventListener("pointerup", onDragEnd);
+window.addEventListener("pointerup", onDragEnd);
+window.addEventListener("pointercancel", onDragEnd);
 
 // 右键弹出菜单（选择「隐藏」才隐藏，而非直接隐藏）
 const petMenu = document.getElementById("pet-menu");
