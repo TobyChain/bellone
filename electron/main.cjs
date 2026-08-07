@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, utilityProcess, nativeImage, Notification, Menu } = require("electron");
+const { app, BrowserWindow, ipcMain, utilityProcess, nativeImage, Notification, Menu, Tray } = require("electron");
 const path = require("node:path");
 const net = require("node:net");
 const http = require("node:http");
@@ -21,7 +21,9 @@ const isDev = !app.isPackaged;
 
 let serverProc = null;
 let mainWin = null;
+let isQuitting = false;
 let petWin = null;
+let tray = null;
 let serverPort = 0;
 
 // 单实例：已在运行时，第二次启动只聚焦已有窗口而非重复运行
@@ -88,7 +90,7 @@ function createMainWindow() {
     minWidth: 720,
     minHeight: 560,
     title: "壹铃 Bellone",
-    titleBarStyle: "hiddenInset",
+    titleBarStyle: "hidden",
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: "#f5f5f7",
     show: false,
@@ -96,14 +98,10 @@ function createMainWindow() {
   });
   mainWin.loadURL(`http://127.0.0.1:${serverPort}/?shell=electron`);
   mainWin.once("ready-to-show", () => mainWin.show());
-  mainWin.on("closed", () => {
-    mainWin = null;
-    // 主窗口关闭后仍保持 Dock 图标可见（macOS），用户可点击 Dock 重新打开
-    if (process.platform === "darwin") {
-      app.dock?.show();
-      app.setActivationPolicy("regular");
-    }
+  mainWin.on("close", (e) => {
+    if (!isQuitting) { e.preventDefault(); mainWin.hide(); }
   });
+  mainWin.on("closed", () => { mainWin = null; });
 }
 
 function createPetWindow() {
@@ -124,7 +122,7 @@ function createPetWindow() {
       preload: path.join(__dirname, "preload.cjs"),
     },
   });
-  petWin.setAlwaysOnTop(true, "screen-saver");
+  petWin.setAlwaysOnTop(true, "floating");
   petWin.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   petWin.setIgnoreMouseEvents(true, { forward: true });
   petWin.loadURL(`http://127.0.0.1:${serverPort}/pet.html`);
@@ -142,6 +140,30 @@ ipcMain.on("pet:move-by", (_e, dx, dy) => {
   if (!petWin) return;
   const [x, y] = petWin.getPosition();
   petWin.setPosition(Math.round(x + dx), Math.round(y + dy));
+});
+
+// Main-process drag: poll the global cursor and move the pet window. This works
+// even when clicking the pet activates the app / the main window jumps forward
+// (which breaks the renderer's pointer-capture drag). The renderer only needs to
+// signal drag-start (pointerdown) and drag-end (pointerup).
+let petDragOrigin = null;
+let petDragTimer = null;
+ipcMain.on("pet:drag-start", () => {
+  if (!petWin) return;
+  const { screen } = require("electron");
+  const c = screen.getCursorScreenPoint();
+  const [x, y] = petWin.getPosition();
+  petDragOrigin = { cx: c.x, cy: c.y, wx: x, wy: y };
+  if (petDragTimer) clearInterval(petDragTimer);
+  petDragTimer = setInterval(() => {
+    if (!petDragOrigin || !petWin) return;
+    const cc = require("electron").screen.getCursorScreenPoint();
+    petWin.setPosition(petDragOrigin.wx + (cc.x - petDragOrigin.cx), petDragOrigin.wy + (cc.y - petDragOrigin.cy));
+  }, 16);
+});
+ipcMain.on("pet:drag-end", () => {
+  if (petDragTimer) { clearInterval(petDragTimer); petDragTimer = null; }
+  petDragOrigin = null;
 });
 ipcMain.on("pet:open-main", () => {
   if (!mainWin) createMainWindow();
@@ -167,6 +189,21 @@ function persistSetting(patch) {
   );
   req.on("error", () => {});
   req.end(body);
+}
+
+function createTray() {
+  const img = nativeImage.createFromPath(path.join(__dirname, "tray-template.png"));
+  if (!img.isEmpty()) img.setTemplateImage(true);
+  tray = new Tray(img);
+  tray.setToolTip("壹铃 Bellone");
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: "打开主界面", click: () => { if (!mainWin) createMainWindow(); else { mainWin.show(); mainWin.focus(); } } },
+    { type: "separator" },
+    { label: "显示 belly 桌宠", click: () => showPet() },
+    { label: "隐藏 belly 桌宠", click: () => { if (petWin) { petWin.close(); petWin = null; } persistSetting({ petHidden: true }); } },
+    { type: "separator" },
+    { role: "quit", label: "退出" },
+  ]));
 }
 
 function showPet() {
@@ -209,6 +246,20 @@ function subscribePetEvents() {
               else if (!petWin) createPetWindow();
             } catch {}
           }
+          else if (event === "reminder") {
+            try {
+              const d = JSON.parse(payload);
+              if (mainWin && !mainWin.isVisible()) mainWin.show();
+              if (Notification.isSupported()) {
+                const n = new Notification({
+                  title: d.title || "壹铃",
+                  body: [d.body, d.tip].filter(Boolean).join("\n"),
+                });
+                n.on("click", () => { if (!mainWin) createMainWindow(); else { mainWin.show(); mainWin.focus(); } });
+                n.show();
+              }
+            } catch {}
+          }
           event = "";
         }
       }
@@ -232,6 +283,16 @@ function buildAppMenu() {
       ],
     },
     { role: "editMenu" },
+    {
+      label: "窗口",
+      submenu: [
+        { label: "关闭窗口", accelerator: "CmdOrCtrl+W", click: () => { if (mainWin) mainWin.close(); } },
+        { role: "minimize", accelerator: "CmdOrCtrl+M" },
+        { role: "zoom" },
+        { type: "separator" },
+        { role: "front" },
+      ],
+    },
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
@@ -259,7 +320,7 @@ function initAutoUpdate() {
 }
 
 app.whenReady().then(async () => {
-  if (process.platform === "darwin") app.setActivationPolicy("regular");
+  if (process.platform === "darwin") app.setActivationPolicy("accessory");
   serverPort = process.env.BELLONE_PORT ? Number(process.env.BELLONE_PORT) : await getFreePort();
   startServer(serverPort);
   try {
@@ -268,6 +329,7 @@ app.whenReady().then(async () => {
     console.error(err);
   }
   buildAppMenu();
+  createTray();
   createMainWindow();
   const status = await fetchStatus();
   if (!status?.settings?.petHidden) createPetWindow();
@@ -277,7 +339,12 @@ app.whenReady().then(async () => {
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createMainWindow();
-    } else if (mainWin) {
+    } else if (mainWin && !mainWin.isVisible()) {
+      // Only un-hide a minimized/hidden main window. When it's already visible
+      // we must NOT call show() here: macOS already brings it forward on
+      // activation, and calling show() on every activate (e.g. from clicking the
+      // pet, or a spurious activate when switching apps) hijacks the pet drag
+      // and steals focus from the foreground app.
       mainWin.show();
     }
   });
@@ -289,7 +356,7 @@ function shutdown() {
     serverProc = null;
   }
 }
-app.on("before-quit", shutdown);
+app.on("before-quit", () => { isQuitting = true; shutdown(); });
 app.on("window-all-closed", () => {
   // 桌宠常驻：主窗口关闭后仍保留在 Dock（macOS 习惯），非 macOS 直接退出
   if (process.platform !== "darwin") {

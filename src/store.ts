@@ -92,7 +92,7 @@ export const DEFAULT_SETTINGS: Settings = {
     stretch: { enabled: false, intervalMin: 120 },
   },
   soundEnabled: true,
-  petHidden: false,
+  petHidden: true,
   llm: { baseUrl: "", apiKey: "", model: "" },
   noteoneMcp: { enabled: true },
 };

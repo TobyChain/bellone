@@ -25,6 +25,7 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
     "electron": "^33.0.0",

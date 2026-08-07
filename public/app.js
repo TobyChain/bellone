@@ -280,8 +280,9 @@ function renderSettings() {
   $("#set-llm-apiKey").value = s.llm?.apiKey ?? "";
   $("#set-llm-model").value = s.llm?.model ?? "";
   $("#set-noteone").checked = s.noteoneMcp?.enabled ?? true;
+
   const ns = status.noteone;
-  $("#noteone-status").textContent = !ns
+  const statusText = !ns
     ? "未知"
     : !ns.available
       ? "未检测到本机 noteone"
@@ -290,6 +291,18 @@ function renderSettings() {
         : ns.connected
           ? `已连接（${ns.toolCount} 个工具）`
           : "检测到 noteone，连接中/已降级";
+  $("#noteone-status").textContent = statusText;
+  const badge = $("#noteone-badge");
+  if (ns?.connected) {
+    badge.textContent = `${ns.toolCount} 工具`;
+    badge.className = "badge ok";
+  } else if (ns?.available) {
+    badge.textContent = "待连接";
+    badge.className = "badge";
+  } else {
+    badge.textContent = "未检测";
+    badge.className = "badge";
+  }
 
   const days = $("#set-days");
   days.innerHTML = "";
@@ -313,11 +326,19 @@ function renderSettings() {
   for (const [key, meta] of Object.entries(status.themes)) {
     const cfg = s.themes[key];
     const row = document.createElement("div");
-    row.className = "theme-setting";
-    row.innerHTML = `
-      <span class="t-name">${meta.label}</span>
-      <label class="switch"><input type="checkbox" ${cfg.enabled ? "checked" : ""} data-k="on" /><span class="slider"></span></label>`;
-    row.querySelector('[data-k="on"]').addEventListener("change", (e) => { cfg.enabled = e.target.checked; });
+    row.className = "module-item";
+    const name = document.createElement("span");
+    name.textContent = meta.label;
+    const sw = document.createElement("label");
+    sw.className = "switch";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = cfg.enabled;
+    input.addEventListener("change", (e) => { cfg.enabled = e.target.checked; });
+    const slider = document.createElement("span");
+    slider.className = "slider";
+    sw.append(input, slider);
+    row.append(name, sw);
     themesEl.appendChild(row);
   }
 }
@@ -434,6 +455,7 @@ function showReminder(data) {
   setTimeout(() => { if (el.isConnected) { el.remove(); updateBadge(); } }, 60_000);
 
   if (
+    !window.bellyNative &&
     typeof Notification !== "undefined" &&
     Notification.permission === "granted" &&
     document.visibilityState !== "visible"
