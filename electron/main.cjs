@@ -19,6 +19,13 @@ if (app.isPackaged) {
 const ROOT = path.join(__dirname, "..");
 const isDev = !app.isPackaged;
 
+// Packaged apps have no visible stdout, so mirror main-process events to a log file.
+const fs = require("node:fs");
+const LOG_PATH = path.join(app.getPath("userData"), "main.log");
+function logMain(msg) {
+  try { fs.appendFileSync(LOG_PATH, `${new Date().toISOString()} ${msg}\n`); } catch {}
+}
+
 let serverProc = null;
 let mainWin = null;
 let isQuitting = false;
@@ -227,7 +234,9 @@ function fetchStatus() {
 
 /** 订阅服务端 SSE 的 pet 事件，实时显示/隐藏桌宠窗（设置页开关触发） */
 function subscribePetEvents() {
+  logMain("subscribePetEvents: connecting");
   const req = http.get({ host: "127.0.0.1", port: serverPort, path: "/api/events" }, (res) => {
+    logMain(`subscribePetEvents: connected status=${res.statusCode}`);
     let buf = "";
     let event = "";
     res.on("data", (chunk) => {
@@ -242,6 +251,7 @@ function subscribePetEvents() {
           if (event === "pet") {
             try {
               const { hidden } = JSON.parse(payload);
+              logMain(`pet event: hidden=${hidden}`);
               if (hidden) { if (petWin) { petWin.close(); petWin = null; } }
               else if (!petWin) createPetWindow();
             } catch {}
@@ -249,6 +259,7 @@ function subscribePetEvents() {
           else if (event === "reminder") {
             try {
               const d = JSON.parse(payload);
+              logMain(`reminder event: title=${d.title} body=${d.body} notifSupported=${Notification.isSupported()} mainVisible=${mainWin ? mainWin.isVisible() : "no-win"}`);
               if (mainWin && !mainWin.isVisible()) mainWin.show();
               if (Notification.isSupported()) {
                 const n = new Notification({
@@ -257,16 +268,22 @@ function subscribePetEvents() {
                 });
                 n.on("click", () => { if (!mainWin) createMainWindow(); else { mainWin.show(); mainWin.focus(); } });
                 n.show();
+                logMain(`notification shown: ${d.title}`);
+              } else {
+                logMain("notification NOT supported");
               }
-            } catch {}
+            } catch (err) {
+              logMain(`reminder event parse error: ${err.message}`);
+            }
           }
           event = "";
         }
       }
     });
-    res.on("end", () => setTimeout(subscribePetEvents, 3000));
+    res.on("end", () => { logMain("subscribePetEvents: stream ended, reconnecting"); setTimeout(subscribePetEvents, 3000); });
+    res.on("error", (e) => { logMain(`subscribePetEvents: stream error ${e.message}, reconnecting`); setTimeout(subscribePetEvents, 3000); });
   });
-  req.on("error", () => setTimeout(subscribePetEvents, 3000));
+  req.on("error", (e) => { logMain(`subscribePetEvents: request error ${e.message}, reconnecting`); setTimeout(subscribePetEvents, 3000); });
 }
 
 function buildAppMenu() {
@@ -321,7 +338,9 @@ function initAutoUpdate() {
 
 app.whenReady().then(async () => {
   if (process.platform === "darwin") app.setActivationPolicy("accessory");
+  logMain(`app ready: packaged=${app.isPackaged} version=${app.getVersion()} userData=${app.getPath("userData")}`);
   serverPort = process.env.BELLONE_PORT ? Number(process.env.BELLONE_PORT) : await getFreePort();
+  logMain(`server port: ${serverPort}`);
   startServer(serverPort);
   try {
     await waitForServer(serverPort);
