@@ -1,0 +1,10 @@
+node_modules/
+dist/
+data/
+.data-test/
+.env
+.DS_Store
+
+release/
+build/icon.iconset/
+build/icon_1024.png

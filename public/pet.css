@@ -1,0 +1,54 @@
+/* belly 桌宠动画（与主界面一致的状态机） */
+.belly-body { transform-origin: 32px 8px; }
+.belly-clapper { transform-origin: 32px 49px; }
+.belly-eyes { transform-origin: 32px 32px; animation: belly-blink 5s infinite; }
+@keyframes belly-blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  96%, 98% { transform: scaleY(0.08); }
+}
+.belly.idle .belly-body { animation: belly-sway 3.2s ease-in-out infinite; }
+@keyframes belly-sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+.belly.running .belly-body { animation: belly-jitter 0.5s ease-in-out infinite; }
+.belly.running .belly-clapper { animation: belly-clap 0.35s ease-in-out infinite; }
+.belly.running .belly-thinking { opacity: 1; animation: belly-think 1.2s ease-in-out infinite; }
+@keyframes belly-jitter {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+@keyframes belly-clap {
+  0%, 100% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+}
+@keyframes belly-think {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.belly.talking .belly-mouth { animation: belly-talk 0.3s ease-in-out infinite; transform-origin: 32px 40px; }
+@keyframes belly-talk {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.8); }
+}
+.belly.waving .belly-body { animation: belly-wave 0.6s ease-in-out 3; }
+.belly.waving .belly-clapper { animation: belly-clap 0.3s ease-in-out 6; }
+@keyframes belly-wave {
+  0%, 100% { transform: rotate(-14deg); }
+  50% { transform: rotate(14deg); }
+}
+.belly.jumping { animation: belly-jump 0.5s ease-out 2; }
+@keyframes belly-jump {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-16px); }
+  70% { transform: translateY(0); }
+  85% { transform: translateY(-6px); }
+}
+.belly.failed { filter: grayscale(0.9) drop-shadow(0 6px 14px rgba(0,0,0,0.25)); }
+.belly.failed .belly-body { transform: rotate(10deg); animation: none; }
+.belly.waiting { animation: belly-float 1.8s ease-in-out infinite; }
+.belly.waiting svg { filter: drop-shadow(0 0 10px rgba(10, 132, 255, 0.7)); }
+@keyframes belly-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
