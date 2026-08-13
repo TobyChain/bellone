@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
@@ -7,7 +8,7 @@ import { store, applySettingsPatch } from "../store.js";
 import type { ToolDefinition } from "./llm.js";
 import type { ToolHandler } from "./tools.js";
 
-const DEFAULT_NOTEONE_DIR = "/Users/bingtao/Documents/ai.alibaba/noteone/server";
+const DEFAULT_NOTEONE_DIR = path.join(os.homedir(), "Documents", "ai.alibaba", "noteone", "server");
 const EXCLUDED_TOOLS = new Set(["run_ascan_module", "merge_ascan_report"]);
 const CALL_TIMEOUT_MS = 30_000;
 const RETRY_INTERVAL_MS = 60_000;

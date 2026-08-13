@@ -46,17 +46,13 @@ npm run dist:mac   # 打包 macOS dmg（输出 release/）
 
 ### Homebrew 安装
 
-发布后可通过自建 tap 安装（二选一）：
+发布后可通过自建 tap 安装（桌面 cask，走 GitHub Release 的 dmg）：
 
 ```bash
-# 方式一：cask（直接装桌面 .app，走 GitHub Release 的 dmg）
 brew install --cask TobyChain/tap/bellone
-
-# 方式二：formula（走 Node，得到命令行 `bellone` 启动本地服务，无 Gatekeeper 阻力）
-brew install TobyChain/tap/bellone
 ```
 
-> tap 仓库 `TobyChain/homebrew-tap` 需另建；cask 版指向 Release 里的 dmg，formula 版 `depends_on "node"` 并 `npm install` 后暴露 `bellone` 命令。详见下方"发布"。
+> tap 仓库 `TobyChain/homebrew-tap` 需另建；cask 定义见 `homebrew/bellone.rb`（发版时更新 version 与 sha256）。
 
 ### 可选：开启 AI 助手（belly · 玲玲）
 
@@ -73,7 +69,7 @@ cp .env.example .env
 
 ## 功能
 
-- **按节律提醒**：工作日 10:00–19:00（可配），喝水/起身/远眺/拉伸各自独立间隔
+- **按节律提醒**：工作日 10:00–19:00（可配），喝水/起身/远眺/拉伸共用一个提醒频率、轮流敲铃
 - **专属铃声**：每个主题一种 Web Audio 音色 —— 喝水是清泉双音，起身是上行三音，远眺是悠长单音，拉伸是轻快琶音
 - **自动避让**：午休静默、下班静默、一键免打扰（开会时用）
 - **互动打卡**：提醒卡片上点「已完成 / 稍后 / 今天不用了」，打卡 +10 健康值并回赠一条不重样的小贴士；打卡瞬间有轻量庆祝动效与音效（Fogg 行为模型的 celebration）
