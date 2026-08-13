@@ -1,6 +1,6 @@
 cask "bellone" do
-  version "0.1.1"
-  sha256 "dfcd5a53d2eb68f058be19e619bd8d68bd300e45bfb88969115a0af35c847103"
+  version "0.1.2"
+  sha256 "94150c35c8fd3c909bccf7c9bec14492a47cb6e0c8f30ccd1054bbeabaad7c70"
 
   url "https://github.com/TobyChain/bellone/releases/download/v#{version}/Bellone-#{version}-arm64.dmg"
   name "壹铃 Bellone"
