@@ -1,6 +1,6 @@
 {
   "name": "bellone",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "壹铃 (Bellone) — 用不同的铃声，提醒你和平地工作与休息",
   "type": "module",
   "main": "electron/main.cjs",
