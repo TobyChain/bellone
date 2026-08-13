@@ -260,7 +260,6 @@ function subscribePetEvents() {
             try {
               const d = JSON.parse(payload);
               logMain(`reminder event: title=${d.title} body=${d.body} notifSupported=${Notification.isSupported()} mainVisible=${mainWin ? mainWin.isVisible() : "no-win"}`);
-              if (mainWin && !mainWin.isVisible()) mainWin.show();
               if (Notification.isSupported()) {
                 const n = new Notification({
                   title: d.title || "壹铃",
@@ -337,7 +336,10 @@ function initAutoUpdate() {
 }
 
 app.whenReady().then(async () => {
-  if (process.platform === "darwin") app.setActivationPolicy("accessory");
+  if (process.platform === "darwin") {
+    app.setActivationPolicy("accessory");
+    if (app.dock) app.dock.hide();
+  }
   logMain(`app ready: packaged=${app.isPackaged} version=${app.getVersion()} userData=${app.getPath("userData")}`);
   serverPort = process.env.BELLONE_PORT ? Number(process.env.BELLONE_PORT) : await getFreePort();
   logMain(`server port: ${serverPort}`);
@@ -349,7 +351,6 @@ app.whenReady().then(async () => {
   }
   buildAppMenu();
   createTray();
-  createMainWindow();
   const status = await fetchStatus();
   if (!status?.settings?.petHidden) createPetWindow();
   subscribePetEvents();
