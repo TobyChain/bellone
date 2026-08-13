@@ -13,19 +13,6 @@ export function parseTheme(v: unknown): ThemeKey | null {
 
 export interface ThemeSetting {
   enabled: boolean;
-  intervalMin: number;
-}
-
-export interface Settings {
-  workDays: number[];
-  workStart: string;
-  workEnd: string;
-  lunchStart: string;
-  lunchEnd: string;
-  themes: Record<ThemeKey, ThemeSetting>;
-  soundEnabled: boolean;
-  llm: { baseUrl: string; apiKey: string; model: string };
-  noteoneMcp: { enabled: boolean };
 }
 
 export interface Checkin {
@@ -60,8 +47,6 @@ export interface PendingCopy {
 }
 
 export interface RuntimeState {
-  lastFired: Partial<Record<ThemeKey, number>>;
-  snoozedUntil: Partial<Record<ThemeKey, number>>;
   mutedTodayDate: string | null;
   mutedThemes: ThemeKey[];
   dndUntil: number | null;
@@ -86,10 +71,10 @@ export const DEFAULT_SETTINGS: Settings = {
   lunchEnd: "13:30",
   reminderIntervalMin: 45,
   themes: {
-    water: { enabled: true, intervalMin: 45 },
-    stand: { enabled: true, intervalMin: 60 },
-    eyes: { enabled: true, intervalMin: 90 },
-    stretch: { enabled: false, intervalMin: 120 },
+    water: { enabled: true },
+    stand: { enabled: true },
+    eyes: { enabled: true },
+    stretch: { enabled: false },
   },
   soundEnabled: true,
   petHidden: true,
@@ -98,8 +83,6 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 const DEFAULT_STATE: RuntimeState = {
-  lastFired: {},
-  snoozedUntil: {},
   mutedTodayDate: null,
   mutedThemes: [],
   dndUntil: null,
@@ -170,11 +153,6 @@ export function applySettingsPatch(
         }
         if (!v) continue;
         if (typeof v.enabled === "boolean") s.themes[theme].enabled = v.enabled;
-        if (v.intervalMin !== undefined) {
-          const n = Number(v.intervalMin);
-          if (Number.isFinite(n) && n >= 5 && n <= 480) s.themes[theme].intervalMin = Math.round(n);
-          else fail("intervalMin 需在 5-480 分钟之间");
-        }
       }
     } else fail("themes 需为对象");
   }

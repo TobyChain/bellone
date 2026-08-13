@@ -181,7 +181,7 @@ function renderThemes() {
     card.className = "theme-card" + (cfg.enabled ? "" : " off");
     card.innerHTML = `
       <div class="theme-name">${meta.label}</div>
-      <div class="theme-int">${cfg.enabled ? `每 ${cfg.intervalMin} 分钟提醒` : "已关闭"}</div>
+      <div class="theme-int">${cfg.enabled ? "已开启" : "已关闭"}</div>
       <div class="theme-actions">
         <button class="chip primary" data-act="checkin" data-theme="${key}">打卡</button>
         <button class="chip" data-act="ring" data-theme="${key}">试铃</button>
@@ -455,6 +455,7 @@ function showReminder(data) {
   setTimeout(() => { if (el.isConnected) { el.remove(); updateBadge(); } }, 60_000);
 
   if (
+    new URLSearchParams(location.search).get("shell") !== "electron" &&
     !window.bellyNative &&
     typeof Notification !== "undefined" &&
     Notification.permission === "granted" &&
